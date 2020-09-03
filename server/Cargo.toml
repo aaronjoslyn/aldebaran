@@ -1,0 +1,9 @@
+[package]
+name = "server"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0"
+hyper = "0.13"
+tokio = { version = "0.2", features = ["fs", "macros"] }
