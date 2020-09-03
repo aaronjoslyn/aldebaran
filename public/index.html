@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>aldebaran</title>
-  </head>
-  <body></body>
-</html>
+<title>aldebaran</title>
+<meta charset="utf-8" />
+<script type="module">
+  import init from "./app.js";
+  init().then((wasm) => wasm.main());
+</script>
