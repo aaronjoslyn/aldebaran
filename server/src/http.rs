@@ -61,7 +61,7 @@ fn sanitise_path(path: &str) -> String {
     path.replace("/", "").replace("..", "").replace("\\", "")
 }
 
-pub async fn listen() {
+pub async fn listen_http() {
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     let service_fn = make_service_fn(|_| async {
         Ok::<_, Infallible>(service_fn(move |req| handle_request(req)))

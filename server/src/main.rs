@@ -1,6 +1,8 @@
+mod build;
 mod http;
 
 #[tokio::main]
 async fn main() {
-    http::listen().await;
+    tokio::spawn(build::watch_wasm());
+    http::listen_http().await;
 }

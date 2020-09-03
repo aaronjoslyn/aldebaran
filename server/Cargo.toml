@@ -7,3 +7,4 @@ edition = "2018"
 anyhow = "1.0"
 hyper = "0.13"
 tokio = { version = "0.2", features = ["fs", "macros"] }
+wasm-bindgen-cli-support = "0.2"
