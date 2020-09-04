@@ -21,13 +21,13 @@ impl FolderWatcher {
         let (tx, rx) = mpsc::channel();
         let watcher = RecommendedWatcher::new_immediate(move |res| match res {
             Ok(event) => {
-                let mut state = shared_state.lock().unwrap();
+                let mut state = shared_state.lock().expect("Failed to lock watcher state.");
                 if let Some(waker) = state.waker.take() {
                     waker.wake();
                 }
-                tx.send(event).unwrap();
+                tx.send(event).expect("Failed to forward event.");
             }
-            Err(e) => println!("watch error: {:?}", e),
+            Err(e) => eprintln!("Watch error: {:?}", e),
         })
         .expect("Failed to create watcher.");
         FolderWatcher { rx, state, watcher }
@@ -45,7 +45,7 @@ impl Stream for FolderWatcher {
     type Item = notify::Event;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        let mut state = self.state.lock().unwrap();
+        let mut state = self.state.lock().expect("Failed to lock watcher state.");
         match self.rx.try_recv() {
             Ok(e) => Poll::Ready(Some(e)),
             Err(_) => {
