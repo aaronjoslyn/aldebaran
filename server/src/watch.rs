@@ -24,8 +24,8 @@ impl FolderWatcher {
                 let mut state = shared_state.lock().expect("Failed to lock watcher state.");
                 if let Some(waker) = state.waker.take() {
                     waker.wake();
+                    tx.send(event).expect("Failed to forward event.");
                 }
-                tx.send(event).expect("Failed to forward event.");
             }
             Err(e) => eprintln!("Watch error: {:?}", e),
         })
