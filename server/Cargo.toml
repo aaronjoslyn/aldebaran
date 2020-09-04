@@ -9,4 +9,5 @@ futures = "0.3"
 hyper = "0.13"
 notify = "5.0.0-pre.3"
 tokio = { version = "0.2", features = ["fs", "macros", "rt-threaded"] }
+tokio-tungstenite = "0.11"
 wasm-bindgen-cli-support = "0.2"

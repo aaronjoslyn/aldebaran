@@ -21,12 +21,13 @@ fn build_wasm() -> Result<()> {
     Ok(())
 }
 
-pub async fn watch_wasm() -> Result<()> {
+pub async fn watch_wasm(tx: tokio::sync::watch::Sender<String>) -> Result<()> {
     let mut watcher = watch::FolderWatcher::new();
     watcher.watch();
     while let Some(_) = watcher.next().await {
         println!("Building..");
         build_wasm().expect("Failed to build new wasm.");
+        tx.broadcast(String::from("Reload"))?;
     }
     Ok(())
 }
