@@ -4,7 +4,7 @@ use futures::{
     SinkExt, StreamExt,
 };
 use tokio::net::{TcpListener, TcpStream};
-use tokio::sync::{mpsc, watch};
+use tokio::sync::watch;
 use tokio_tungstenite::tungstenite::Message;
 
 pub type WebSocketSink = SplitSink<tokio_tungstenite::WebSocketStream<TcpStream>, Message>;
@@ -21,13 +21,11 @@ pub async fn listen_websocket(rx: watch::Receiver<String>) {
     }
 }
 
-async fn accept_stream(stream: TcpStream, rx: watch::Receiver<String>) -> Result<()> {
-    let (mut local_tx, _) = accept_websocket(stream).await?;
-    let (build_tx, mut build_rx) = mpsc::channel(100);
-    println!("Client connected.");
-    tokio::spawn(proxy_build(rx, build_tx.clone()));
-    while let Some(msg) = build_rx.next().await {
-        local_tx.send(msg).await?;
+async fn accept_stream(stream: TcpStream, mut rx: watch::Receiver<String>) -> Result<()> {
+    let (mut tx, _) = accept_websocket(stream).await?;
+    println!("Websocket connected.");
+    while let Some(msg) = rx.next().await {
+        tx.send(WebSocketMessage::text(msg)).await?;
     }
     Ok(())
 }
@@ -35,14 +33,4 @@ async fn accept_stream(stream: TcpStream, rx: watch::Receiver<String>) -> Result
 async fn accept_websocket(stream: TcpStream) -> Result<(WebSocketSink, WebSocketStream)> {
     let local_client_stream = tokio_tungstenite::accept_async(stream).await?;
     Ok(local_client_stream.split())
-}
-
-async fn proxy_build(
-    mut rx: watch::Receiver<String>,
-    mut tx: mpsc::Sender<WebSocketMessage>,
-) -> Result<()> {
-    while let Some(msg) = rx.next().await {
-        tx.send(WebSocketMessage::text(msg)).await?;
-    }
-    Ok(())
 }
