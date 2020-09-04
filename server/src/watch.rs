@@ -1,15 +1,17 @@
 use futures::Stream;
-use notify::Watcher;
+use notify::{Event, FsEventWatcher, RecommendedWatcher, RecursiveMode, Watcher};
+use std::pin::Pin;
 use std::sync::{mpsc, Arc, Mutex};
+use std::task::{Context, Poll, Waker};
 
 struct FolderWatcherState {
-    waker: Option<std::task::Waker>,
+    waker: Option<Waker>,
 }
 
 pub struct FolderWatcher {
-    rx: mpsc::Receiver<notify::Event>,
+    rx: mpsc::Receiver<Event>,
     state: Arc<Mutex<FolderWatcherState>>,
-    watcher: notify::FsEventWatcher,
+    watcher: FsEventWatcher,
 }
 
 impl FolderWatcher {
@@ -17,7 +19,7 @@ impl FolderWatcher {
         let state = Arc::new(Mutex::new(FolderWatcherState { waker: None }));
         let shared_state = state.clone();
         let (tx, rx) = mpsc::channel();
-        let watcher = notify::RecommendedWatcher::new_immediate(move |res| match res {
+        let watcher = RecommendedWatcher::new_immediate(move |res| match res {
             Ok(event) => {
                 let mut state = shared_state.lock().unwrap();
                 if let Some(waker) = state.waker.take() {
@@ -33,7 +35,7 @@ impl FolderWatcher {
 
     pub fn watch(&mut self) {
         self.watcher
-            .watch("./app/src", notify::RecursiveMode::Recursive)
+            .watch("./app/src", RecursiveMode::Recursive)
             .expect("Failed to watch directory.");
         println!("Watching ./app/src");
     }
@@ -42,16 +44,13 @@ impl FolderWatcher {
 impl Stream for FolderWatcher {
     type Item = notify::Event;
 
-    fn poll_next(
-        self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Option<Self::Item>> {
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let mut state = self.state.lock().unwrap();
         match self.rx.try_recv() {
-            Ok(e) => std::task::Poll::Ready(Some(e)),
+            Ok(e) => Poll::Ready(Some(e)),
             Err(_) => {
                 state.waker = Some(cx.waker().clone());
-                std::task::Poll::Pending
+                Poll::Pending
             }
         }
     }
