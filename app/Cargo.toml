@@ -8,4 +8,4 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 console_error_panic_hook = "0.1"
-wasm-bindgen = { version = "0.2" }
+wasm-bindgen = "0.2"

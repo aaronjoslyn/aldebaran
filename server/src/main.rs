@@ -1,5 +1,6 @@
 mod build;
 mod http;
+mod watch;
 
 #[tokio::main]
 async fn main() {

@@ -1,7 +1,9 @@
+use super::watch;
 use anyhow::Result;
+use futures::StreamExt;
 use wasm_bindgen_cli_support::Bindgen;
 
-async fn build_wasm() -> Result<()> {
+fn build_wasm() -> Result<()> {
     let status = std::process::Command::new("cargo")
         .current_dir("./app")
         .args(vec!["build"])
@@ -20,14 +22,11 @@ async fn build_wasm() -> Result<()> {
 }
 
 pub async fn watch_wasm() -> Result<()> {
-    let mut timestamp = std::time::SystemTime::UNIX_EPOCH;
-    loop {
-        let metadata = tokio::fs::metadata("./app/src/lib.rs").await?;
-        let last_modified = metadata.modified()?;
-        if last_modified > timestamp {
-            build_wasm().await?;
-            timestamp = tokio::fs::metadata("./app/src/lib.rs").await?.modified()?;
-        }
-        tokio::time::delay_for(tokio::time::Duration::from_millis(5000)).await;
+    let mut watcher = watch::FolderWatcher::new();
+    watcher.watch();
+    while let Some(_) = watcher.next().await {
+        println!("Building..");
+        build_wasm().expect("Failed to build new wasm.");
     }
+    Ok(())
 }
