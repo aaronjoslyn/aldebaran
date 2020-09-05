@@ -17,18 +17,25 @@ fn build_wasm() -> Result<()> {
         .generate("./public")?;
     if status.success() {
         println!("Built new wasm.");
+        Ok(())
+    } else {
+        Err(anyhow::anyhow!("Failed to build new wasm."))
     }
-    Ok(())
 }
 
 pub async fn watch_wasm(mut tx: tokio::sync::mpsc::Sender<String>) -> Result<()> {
     let mut watcher = watch::FolderWatcher::new();
     watcher.watch();
-    build_wasm().expect("Failed to build new wasm.");
+    match build_wasm() {
+        Ok(_) => (),
+        Err(e) => eprintln!("{}", e),
+    }
     while let Some(_) = watcher.next().await {
         println!("Building..");
-        build_wasm().expect("Failed to build new wasm.");
-        tx.send(String::from("Reload")).await?;
+        match build_wasm() {
+            Ok(_) => tx.send(String::from("Reload")).await?,
+            Err(e) => eprintln!("{}", e),
+        }
     }
     Ok(())
 }
