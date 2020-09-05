@@ -15,7 +15,10 @@ pub fn connect_websocket() -> Result<(), JsValue> {
 
 fn on_message(e: MessageEvent) {
     if let Ok(txt) = e.data().dyn_into::<js_sys::JsString>() {
-        console_log!("Received message: {:?}", txt);
+        if txt == "Reload" {
+            let window = web_sys::window().expect("Failed to find window.");
+            window.location().reload().expect("Failed to reload page.");
+        }
     } else {
         console_error!("Received unexpected message: {:?}", e.data());
     }
