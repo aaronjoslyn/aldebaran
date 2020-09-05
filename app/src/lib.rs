@@ -9,6 +9,6 @@ use wasm_bindgen::prelude::*;
 pub fn main() -> Result<(), JsValue> {
     console_error_panic_hook::set_once();
     websocket::connect_websocket()?;
-    canvas::create_canvas();
+    canvas::create_context()?;
     Ok(())
 }
