@@ -1,10 +1,8 @@
 mod canvas;
-#[macro_use]
-mod util;
 mod websocket;
 
 use wasm_bindgen::prelude::*;
-use web_sys::{WebGl2RenderingContext, WebGlProgram, WebGlShader};
+use web_sys::{console, WebGl2RenderingContext, WebGlProgram, WebGlShader};
 
 #[wasm_bindgen]
 pub fn main() -> Result<(), JsValue> {
@@ -59,7 +57,10 @@ fn create_program(
     if success {
         Ok(program)
     } else {
-        console_error!("{:?}", gl.get_program_info_log(&program));
+        let error = gl
+            .get_program_info_log(&program)
+            .expect("Failed to get program info log.");
+        console::error_1(&error.into());
         Err(JsValue::from("Failed to link program."))
     }
 }
@@ -81,7 +82,10 @@ fn create_shader(
     if success {
         Ok(shader)
     } else {
-        console_error!("{:?}", gl.get_shader_info_log(&shader));
+        let error = gl
+            .get_shader_info_log(&shader)
+            .expect("Failed to get shader info log.");
+        console::error_1(&error.into());
         Err(JsValue::from("Failed to compile shader."))
     }
 }

@@ -1,5 +1,5 @@
 use wasm_bindgen::{prelude::*, JsCast};
-use web_sys::{ErrorEvent, MessageEvent, WebSocket};
+use web_sys::{console, ErrorEvent, MessageEvent, WebSocket};
 
 pub fn connect_websocket() -> Result<(), JsValue> {
     let ws = WebSocket::new("ws://localhost:4000")?;
@@ -20,10 +20,10 @@ fn on_message(e: MessageEvent) {
             window.location().reload().expect("Failed to reload page.");
         }
     } else {
-        console_error!("Received unexpected message: {:?}", e.data());
+        console::error_2(&"Received unexpected message:".into(), &e.data());
     }
 }
 
 fn on_error(e: ErrorEvent) {
-    console_error!("Socket error: {:?}", e);
+    console::error_2(&"Socket error:".into(), &e);
 }
