@@ -16,8 +16,10 @@ pub fn main() -> Result<(), JsValue> {
         WebGl2RenderingContext::VERTEX_SHADER,
         "#version 300 es
         in vec4 a_position;
+        out vec4 v_colour;
         void main() {
           gl_Position = a_position;
+          v_colour = gl_Position * 0.5 + 0.5;
         }",
     )?;
     let fragment_shader = create_shader(
@@ -25,9 +27,10 @@ pub fn main() -> Result<(), JsValue> {
         WebGl2RenderingContext::FRAGMENT_SHADER,
         "#version 300 es
         precision highp float;
-        out vec4 outColour;
+        in vec4 v_colour;
+        out vec4 out_colour;
         void main() {
-          outColour = vec4(1, 0, 0.5, 1);
+          out_colour = v_colour;
         }",
     )?;
     let shader_program = create_program(&gl, &vertex_shader, &fragment_shader)?;
