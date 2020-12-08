@@ -6,8 +6,8 @@ edition = "2018"
 [dependencies]
 anyhow = "1.0"
 futures = "0.3"
-hyper = "0.13"
+hyper = { git = "https://github.com/hyperium/hyper", rev = "b4e2433", features = ["full"] }
 notify = "5.0.0-pre.3"
-tokio = { version = "0.2", features = ["fs", "macros", "rt-threaded"] }
-tokio-tungstenite = "0.11"
+tokio = { version = "0.3", features = ["fs", "macros", "rt-multi-thread", "sync"] }
+tokio-tungstenite = "0.12"
 wasm-bindgen-cli-support = "0.2"

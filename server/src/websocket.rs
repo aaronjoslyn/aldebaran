@@ -52,7 +52,7 @@ async fn forward_reload(
 async fn accept_stream(stream: TcpStream, mut rx: mpsc::Receiver<String>) -> Result<()> {
     let (mut tx, _) = accept_websocket(stream).await?;
     println!("Websocket connected.");
-    while let Some(msg) = rx.next().await {
+    while let Some(msg) = rx.recv().await {
         tx.send(WebSocketMessage::text(msg)).await?;
     }
     Ok(())
