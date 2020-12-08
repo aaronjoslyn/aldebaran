@@ -15,7 +15,7 @@ pub type WebSocketMessage = tokio_tungstenite::tungstenite::Message;
 pub async fn listen_websocket(reload_rx: mpsc::Receiver<String>) -> Result<()> {
     let addr = "127.0.0.1:4000";
     let try_socket = TcpListener::bind(addr).await;
-    let mut listener = try_socket.expect("failed to bind websocket server");
+    let listener = try_socket.expect("failed to bind websocket server");
     println!("Listening for websockets on {}", addr);
     let listeners: Arc<Mutex<Vec<mpsc::Sender<String>>>> = Arc::new(Mutex::new(vec![]));
     tokio::spawn(forward_reload(reload_rx, listeners.clone()));
@@ -37,7 +37,7 @@ async fn forward_reload(
         let mut listeners = shared_listeners.lock().await;
         let mut failed = vec![];
         for (i, l) in listeners.iter().enumerate() {
-            let mut listener = l.clone();
+            let listener = l.clone();
             match listener.send(msg.clone()).await {
                 Ok(_) => (),
                 Err(_) => failed.push(i),
