@@ -23,7 +23,7 @@ fn build_wasm() -> Result<()> {
     }
 }
 
-pub async fn watch_wasm(mut tx: tokio::sync::mpsc::Sender<String>) -> Result<()> {
+pub async fn watch_wasm(tx: tokio::sync::mpsc::Sender<String>) -> Result<()> {
     let mut watcher = watch::FolderWatcher::new();
     watcher.watch();
     match build_wasm() {
