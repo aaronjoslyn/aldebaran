@@ -1,5 +1,5 @@
 use futures::Stream;
-use notify::{Event, FsEventWatcher, RecommendedWatcher, RecursiveMode, Watcher};
+use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::pin::Pin;
 use std::sync::{mpsc, Arc, Mutex};
 use std::task::{Context, Poll, Waker};
@@ -11,7 +11,7 @@ struct FolderWatcherState {
 pub struct FolderWatcher {
     rx: mpsc::Receiver<Event>,
     state: Arc<Mutex<FolderWatcherState>>,
-    watcher: FsEventWatcher,
+    watcher: RecommendedWatcher,
 }
 
 impl FolderWatcher {
