@@ -1,10 +1,16 @@
-# aldebaran
+# rust-wasm-opengl
 
 Auto-reloading Rust in the browser, using tokio, wasm and more.
 
 ## Run
 
-First, start the server:
+First, add wasm32 as a target:
+
+```
+$ rustup target add wasm32-unknown-unknown
+```
+
+Then, start the server:
 
 ```
 $ cargo run --bin server
